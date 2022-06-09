@@ -1,5 +1,6 @@
 package repositories;
 
+import models.Category;
 import models.Product;
 import utils.ApplicationProperties;
 
@@ -8,6 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRepository {
+    private CategoryRepository categoryRepository;
+
+    public ProductRepository(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
     public List<Product> getProducts() {
         List<Product> listOfProducts = new ArrayList<>();
         String query = "SELECT * FROM products;";
@@ -48,7 +55,7 @@ public class ProductRepository {
 
     public Long addProduct(Product product) {
 
-        String query = "INSERT INTO Product (title, description, price, quantity) VALUES(?, ?, ?, ?)";
+        String query = "INSERT INTO products (title, description, price, quantity) VALUES(?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(ApplicationProperties.JDBC_URL, ApplicationProperties.USERNAME, ApplicationProperties.PASSWORD);
 
@@ -92,7 +99,7 @@ public class ProductRepository {
     }
 
     public Boolean isProductInCategory(Long categoryId, Long productId) {
-        String query = "SELECT TOP 1 * FROM categories_product WHERE categoryId = ? AND productId = ?;";
+        String query = "SELECT TOP 1 * FROM categories_products WHERE categoryId = ? AND productId = ?;";
 
         try (Connection conn = DriverManager.getConnection(ApplicationProperties.JDBC_URL, ApplicationProperties.USERNAME, ApplicationProperties.PASSWORD);
              PreparedStatement ps = conn.prepareStatement(query)) {
@@ -251,14 +258,33 @@ public class ProductRepository {
         return false;
     }
 
+    private List<Category> getCategoriesById(Long productId) {
+        String query = "SELECT * FROM categories_products WHERE productId = ?;";
+        List<Category> result = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(ApplicationProperties.JDBC_URL, ApplicationProperties.USERNAME, ApplicationProperties.PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setLong(1, productId);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                result.add(categoryRepository.getCategoryById(resultSet.getLong("categoryId")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     private Product mapToProduct(ResultSet resultSet) throws SQLException {
         Long productId = resultSet.getLong("productId");
         String title = resultSet.getString("title");
         String description = resultSet.getString("description");
         Double price = resultSet.getDouble("price");
         Double quantity = resultSet.getDouble("quantity");
+        List<Category> categories = getCategoriesById(productId);
 
         Product product = new Product(productId, title, description, price, quantity);
+        product.setCategories(categories);
         return product;
     }
 }

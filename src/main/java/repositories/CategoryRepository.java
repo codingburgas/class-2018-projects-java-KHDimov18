@@ -98,8 +98,8 @@ public class CategoryRepository {
 
                  PreparedStatement ps = conn.prepareStatement(query)) {
 
-                ps.setString(2, category.getCategoryName());
-                ps.setLong(5, categoryId);
+                ps.setString(1, category.getCategoryName());
+                ps.setLong(2, categoryId);
 
                 int row = ps.executeUpdate();
 
