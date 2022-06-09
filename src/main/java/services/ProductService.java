@@ -50,6 +50,11 @@ public class ProductService {
     public Boolean updateProduct(Long productId, String title, String description, Double price, Double quantity, List<Category> categories) {
         Product product = productRepository.getProductById(productId);
         if(product!=null){
+            product.setTitle(title);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setQuantity(quantity);
+
             productRepository.updateProduct(product, productId);
             List<Long> addCategoryIds = new ArrayList<>();
             List<Long> removeCategoryIds = new ArrayList<>();
