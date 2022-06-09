@@ -2,6 +2,7 @@ package controllers;
 
 import models.User;
 
+import java.text.ParseException;
 import java.util.Scanner;
 
 public class HomeController {
@@ -39,6 +40,18 @@ public class HomeController {
         System.out.println("4. Order management");
         System.out.println("5. Customer management");
 
+    }
+
+    private void printUserMenu() {
+        System.out.println("Welcome to the bike app, dear user!");
+        System.out.println("1. Edit your customer details");
+        System.out.println("2. List available products");
+        System.out.println("3. List available categories");
+        System.out.println("4. View products by category");
+        System.out.println("5. View product by id");
+        System.out.println("6. Make an order");
+        System.out.println("7. View all orders");
+        System.out.println("8. View order details");
     }
 
     private void getCommand() {
@@ -91,7 +104,11 @@ public class HomeController {
                     categoryController.printManagement();
                     break;
                 case 4:
-                    orderController.printManagement();
+                    try {
+                        orderController.printManagement();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case 5:
                     customerController.printManagement();
@@ -108,6 +125,42 @@ public class HomeController {
             command = Integer.parseInt(sc.nextLine());
         }
     }
+
+    private void getUserCommand() {
+        Scanner sc = new Scanner(System.in);
+        printUserMenu();
+
+        Integer command = Integer.parseInt(sc.nextLine());
+        while(command!=9) {
+            switch(command) {
+                case 1:
+                    customerController.editOwnDetails(HomeController.loggedUser.getCustomerId());
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+
+                    break;
+                case 4:
+
+                    break;
+                case 5:
+
+                    break;
+                case 6:
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Wrong command!");
+            }
+
+            printAdminMenu();
+
+            command = Integer.parseInt(sc.nextLine());
+        }
+    }
+
 
     public void run() {
         getCommand();
