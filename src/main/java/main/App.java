@@ -16,17 +16,17 @@ public class App {
         UserController userController = new UserController(userService);
 
         CategoryRepository categoryRepository = new CategoryRepository();
-        ProductRepository productRepository = new ProductRepository();
+        ProductRepository productRepository = new ProductRepository(categoryRepository);
         CategoryService categoryService = new CategoryService(categoryRepository, productRepository);
 
         CategoryController categoryController = new CategoryController(categoryService);
 
         ProductService productService = new ProductService(productRepository);
-        ProductController productController = new ProductController(productService);
+        ProductController productController = new ProductController(productService, categoryService);
 
         OrderRepository orderRepository = new OrderRepository();
         OrderService orderService = new OrderService(orderRepository);
-        OrderController orderController = new OrderController(orderService);
+        OrderController orderController = new OrderController(orderService, productService);
 
         CustomerService customerService = new CustomerService(customerRepository, orderRepository);
         CustomerController customerController = new CustomerController(customerService);
