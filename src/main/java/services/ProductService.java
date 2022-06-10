@@ -18,6 +18,10 @@ public class ProductService {
         return productRepository.getProducts();
     }
 
+    public List<Product> getProductsByCategoryId(Long categoryId) {
+        return productRepository.getProductsByCategoryId(categoryId);
+    }
+
     public Product getProductById(Long productId) {
         return productRepository.getProductById(productId);
     }
@@ -60,14 +64,18 @@ public class ProductService {
             List<Long> removeCategoryIds = new ArrayList<>();
 
             for (Category category : categories) {
-                if(!productRepository.isProductInCategory(category.getCategoryId(), productId)) {
-                    addCategoryIds.add(category.getCategoryId());
+                if(category!=null) {
+                    if (!productRepository.isProductInCategory(category.getCategoryId(), productId)) {
+                        addCategoryIds.add(category.getCategoryId());
+                    }
                 }
             }
 
             for (Category category : product.getCategories()) {
-                if(categories.stream().filter(c -> c.getCategoryId() == category.getCategoryId()).findAny().isEmpty()) {
-                    removeCategoryIds.add(category.getCategoryId());
+                if(category!=null) {
+                    if (categories.stream().filter(c -> c.getCategoryId() == category.getCategoryId()).findAny().isEmpty()) {
+                        removeCategoryIds.add(category.getCategoryId());
+                    }
                 }
             }
 

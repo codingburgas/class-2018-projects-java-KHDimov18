@@ -20,7 +20,7 @@ public class OrderService {
         if(orderId!=-1L) {
             //order created successfully, add products to it
             for (Product product: products) {
-                orderRepository.addToOrder(orderId, product.getProductId(), 1.0);
+                orderRepository.addToOrder(orderId, product.getProductId(), 1.0, product.getPrice());
             }
 
             return true;
@@ -74,6 +74,11 @@ public class OrderService {
 
     public List<Order> getOrders() {
         return orderRepository.getOrders();
+    }
+
+    public List<Order> getOrdersByCustomerId(Long customerId)
+    {
+        return orderRepository.getOrdersByCustomerId(customerId);
     }
 
     public Order getOrderById(Long orderId) {
