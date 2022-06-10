@@ -44,7 +44,7 @@ public class CategoryController {
         }
     }
 
-    private void listAllCategories() {
+    public void listAllCategories() {
         List<Category> categories = categoryService.getCategories();
         System.out.println(new String("-").repeat(60));
         System.out.println(String.format("|%s|", PrintUtils.center("CATEGORIES LIST", 58)));

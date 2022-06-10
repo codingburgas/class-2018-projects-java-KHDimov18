@@ -77,7 +77,7 @@ public class HomeController {
                     getAdminCommand();
                 }
                 else{
-                    //getUserCommand();
+                    getUserCommand();
                 }
             }
             printMenu();
@@ -137,25 +137,31 @@ public class HomeController {
                     customerController.editOwnDetails(HomeController.loggedUser.getCustomerId());
                     break;
                 case 2:
-
+                    productController.listAllProducts();
                     break;
                 case 3:
-
+                    categoryController.listAllCategories();
                     break;
                 case 4:
-
+                    productController.listAllProductsByCategoryId();
                     break;
                 case 5:
-
+                    productController.viewProductById();
                     break;
                 case 6:
-                    System.exit(0);
+                    orderController.makeOrder(HomeController.loggedUser.getCustomerId());
+                    break;
+                case 7:
+                    orderController.listAllOrdersByCustomer(HomeController.loggedUser.getCustomerId());
+                    break;
+                case 8:
+                    orderController.viewOrderDetailsById(HomeController.loggedUser.getCustomerId());
                     break;
                 default:
                     System.out.println("Wrong command!");
             }
 
-            printAdminMenu();
+            printUserMenu();
 
             command = Integer.parseInt(sc.nextLine());
         }

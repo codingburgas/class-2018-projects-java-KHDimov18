@@ -51,7 +51,7 @@ public class ProductController {
         }
     }
 
-    private void listAllProducts() {
+    public void listAllProducts() {
         List<Product> products = productService.getProducts();
         System.out.println(new String("-").repeat(75));
         System.out.println(String.format("|%s|", PrintUtils.center("PRODUCTS LIST", 73)));
@@ -75,6 +75,59 @@ public class ProductController {
         }
         System.out.println(new String("-").repeat(75));
 
+    }
+
+    public void listAllProductsByCategoryId() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the category ID: ");
+        Long categoryId = Long.parseLong(sc.nextLine());
+        List<Product> products = productService.getProductsByCategoryId(categoryId);
+        System.out.println(new String("-").repeat(75));
+        System.out.println(String.format("|%s|", PrintUtils.center("PRODUCTS LIST", 73)));
+        System.out.println(new String("-").repeat(75));
+        System.out.println(
+                String.format(
+                        "|%1$-5s|%2$-15s|%3$-10s|%4$-10s|%5$-30s|",
+                        "ID", "Title", "Price", "Quantity", "Categories"
+                )
+        );
+
+        for (Product product : products) {
+            String categoriesList = String.join(", ", product.getCategories().stream().map(item -> item.getCategoryName()).toList());
+
+            System.out.println(
+                    String.format(
+                            "|%1$-5s|%2$-15s|%3$-10s|%4$-10s|%5$-30s|",
+                            product.getProductId(), product.getTitle(), product.getPrice(), product.getQuantity(), categoriesList
+                    )
+            );
+        }
+        System.out.println(new String("-").repeat(75));
+
+    }
+
+    public void viewProductById() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter ID of the product that you want to view: ");
+        Long productId = Long.parseLong(sc.nextLine());
+
+        Product product = productService.getProductById(productId);
+        if(product!=null)
+        {
+            String categoriesList = String.join(", ", product.getCategories().stream().map(item -> item.getCategoryName()).toList());
+
+            System.out.println("Product title: " + product.getTitle());
+            System.out.println("Product description: " + product.getDescription());
+            System.out.println("Product price: " + product.getPrice());
+            System.out.println("Product quantity: " + product.getQuantity());
+            System.out.println("Product categories: " + categoriesList);
+
+
+        }
+        else
+        {
+            System.out.println("The id is not valid!");
+        }
     }
 
     private void editProduct() {
@@ -110,7 +163,12 @@ public class ProductController {
                     .mapToLong(item -> Long.parseLong(item)).boxed().collect(Collectors.toList());
             List<Category> categories = new ArrayList<>();
             for (Long categoryId : categoryIds) {
-                categories.add(categoryService.getCategoryById(categoryId));
+                Category category = categoryService.getCategoryById(categoryId);
+                if(category!=null) {
+                    categories.add(
+                        category
+                    );
+                }
             }
             Boolean result = productService.updateProduct(productId, productTitle, productDescription, productPrice, productQuantity, categories);
             if(result)
@@ -165,7 +223,12 @@ public class ProductController {
                 .mapToLong(item -> Long.parseLong(item)).boxed().collect(Collectors.toList());
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : categoryIds) {
-            categories.add(categoryService.getCategoryById(categoryId));
+            Category category = categoryService.getCategoryById(categoryId);
+            if(category!=null) {
+                categories.add(
+                        category
+                );
+            }
         }
 
         Boolean result = productService.addProduct(productTitle, productDescription, productPrice, productQuantity, categories);
