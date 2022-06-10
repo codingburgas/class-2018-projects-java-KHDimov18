@@ -24,7 +24,7 @@ public class App {
         ProductService productService = new ProductService(productRepository);
         ProductController productController = new ProductController(productService, categoryService);
 
-        OrderRepository orderRepository = new OrderRepository();
+        OrderRepository orderRepository = new OrderRepository(productRepository);
         OrderService orderService = new OrderService(orderRepository);
         OrderController orderController = new OrderController(orderService, productService);
 
