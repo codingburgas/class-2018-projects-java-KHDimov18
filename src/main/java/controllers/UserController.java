@@ -18,7 +18,7 @@ public class UserController {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter your username: ");
         String userName = sc.nextLine();
-        System.out.println("Enter your username: ");
+        System.out.println("Enter your password: ");
         String userPassword = sc.nextLine();
 
         Boolean isValid = userService.isLogin(userName, userPassword);
