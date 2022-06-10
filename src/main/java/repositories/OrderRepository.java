@@ -1,6 +1,8 @@
 package repositories;
 
+import models.Category;
 import models.Order;
+import models.Product;
 import utils.ApplicationProperties;
 
 import java.sql.*;
@@ -8,6 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderRepository {
+    private ProductRepository productRepository;
+
+    public OrderRepository(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
     public List<Order> getOrders() {
         List<Order> listOfOrders = new ArrayList<>();
         String query = "SELECT * FROM orders;";
@@ -67,14 +75,15 @@ public class OrderRepository {
 
     public Long addOrder(Order order) {
 
-        String query = "INSERT INTO Orders (deliveryAddress, shipmentDate) VALUES(?, ?)";
+        String query = "INSERT INTO Orders (customerId, deliveryAddress, shipmentDate) VALUES(?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(ApplicationProperties.JDBC_URL, ApplicationProperties.USERNAME, ApplicationProperties.PASSWORD);
 
              PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, order.getDeliveryAddress());
-            ps.setDate(2, (Date) order.getShipmentDate());
+            ps.setLong(1, order.getCustomerId());
+            ps.setString(2, order.getDeliveryAddress());
+            ps.setDate(3, new Date(order.getShipmentDate().getTime()));
 
 
             int row = ps.executeUpdate();
@@ -97,8 +106,8 @@ public class OrderRepository {
         return -1L;
     }
 
-    public Boolean addToOrder(Long orderId, Long productId, Double quantity) {
-        String query = "INSERT INTO orders_products (orderId, productId, quantity) VALUES(?, ?, ?)";
+    public Boolean addToOrder(Long orderId, Long productId, Double quantity, Double price) {
+        String query = "INSERT INTO orders_products (orderId, productId, quantity, price) VALUES(?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(ApplicationProperties.JDBC_URL, ApplicationProperties.USERNAME, ApplicationProperties.PASSWORD);
 
@@ -107,6 +116,7 @@ public class OrderRepository {
             ps.setLong(1, orderId);
             ps.setLong(2, productId);
             ps.setDouble(3, quantity);
+            ps.setDouble(4, price);
 
 
             int row = ps.executeUpdate();
@@ -264,13 +274,32 @@ public class OrderRepository {
         return false;
     }
 
+    private List<Product> getProductsByOrderId(Long orderId) {
+        String query = "SELECT * FROM orders_products WHERE orderId = ?;";
+        List<Product> result = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(ApplicationProperties.JDBC_URL, ApplicationProperties.USERNAME, ApplicationProperties.PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setLong(1, orderId);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                result.add(productRepository.getProductById(resultSet.getLong("productId")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     private Order mapToOrder(ResultSet resultSet) throws SQLException {
         Long orderId = resultSet.getLong("orderId");
         Long customerId = resultSet.getLong("customerId");
         String deliveryAddress = resultSet.getString("deliveryAddress");
         Date shipmentDate = resultSet.getDate("shipmentDate");
+        List<Product> products = getProductsByOrderId(orderId);
 
         Order order = new Order(orderId, customerId, deliveryAddress, shipmentDate);
+        order.setProducts(products);
         return order;
     }
 }
